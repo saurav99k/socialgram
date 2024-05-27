@@ -33,7 +33,7 @@ class AddUser(Resource):
         user = User(username=uname, password=hashedPassword)
         db.session.add(user)
         db.session.commit()
-        return data
+        return {"Message": "User created Successfully"}, 201
 
 
 class AddPost(Resource):
@@ -53,14 +53,14 @@ class LoginUser(Resource):
         # print("USER IS ",ans)
         else:
             userBytes = pwd.encode("utf-8")
-            print("userBytes,,,", userBytes)
+            # print("userBytes,,,", userBytes)
             hash = loggedInUser.password
-            print("HASH is, ", hash)
+            # print("HASH is, ", hash)
             result = bcrypt.checkpw(userBytes, hash)
             if result == False:
                 return {"Error": "Wrong Password"}, 401
             access_token = create_access_token(identity=uname)
-            return jsonify(access_token=access_token)
+            return {"access_token": access_token}, 200
             # return "User Logged In",200
 
 
