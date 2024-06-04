@@ -37,9 +37,21 @@ class AddUser(Resource):
 
 
 class AddPost(Resource):
+    @jwt_required()
     def post(self):
         data = request.json
-        return data
+        postid, author, title, desc, img_path, postedat = tuple(data.values())
+        post = Post(
+            postId=postid,
+            author_username=author,
+            title=title,
+            description=desc,
+            imagePath=img_path,
+            postedAt=postedat,
+        )
+        db.session.add(post)
+        db.session.commit()
+        return {"Message": "Post Added Successfully!"}
 
 
 class LoginUser(Resource):
@@ -73,7 +85,35 @@ class Protected(Resource):
         # return jsonify(logged_in_as=current_user), 200
 
 
+class ShowPost(Resource):
+    @jwt_required()
+    def get(self):
+        current_user = get_jwt_identity()
+        loggedInUser = Post.query.filter_by(author_username=current_user).all()
+        postCount = len(loggedInUser)
+        postDict = []
+        for item in loggedInUser:
+            postDict.append(
+                {
+                    "postid": item.postId,
+                    "title": item.title,
+                    "description": item.description,
+                }
+            )
+        print(postDict, postCount)
+        return {"post": postDict, "count": postCount}
+    
+    @jwt_required()
+    def delete(self):
+        current_user = get_jwt_identity()
+        postid = request.args.get("postid")
+        deletedPost = Post.query.filter_by(author_username=current_user,postId=postid).delete()
+        db.session.commit()
+        return {"message":"Show post deleted"}
+
+
 blogapi.add_resource(AddUser, "/adduser")
 blogapi.add_resource(AddPost, "/addpost")
 blogapi.add_resource(LoginUser, "/login")
 blogapi.add_resource(Protected, "/protected")
+blogapi.add_resource(ShowPost, "/showpost")

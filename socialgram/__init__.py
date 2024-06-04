@@ -10,12 +10,16 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
+from datetime import timedelta
 
 
 def create_app(testing_config=None):
 
     app = Flask(__name__, instance_relative_config=True)
     app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(minutes=1)
+
     jwt = JWTManager(app)
     cors = CORS(app)
     app.config["CORS_HEADERS"] = "Content-Type"

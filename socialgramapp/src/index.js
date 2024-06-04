@@ -1,11 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Login from "./components/Login";
+// import Todo from "./Todo";
+// import Post from "./Post";
+import Signup from "./Signup";
+import Login from "./Login";
 import App from "./App";
+import Udemy from "./Udemy";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <Login />
     <App />
   </React.StrictMode>
 );

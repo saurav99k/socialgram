@@ -1,23 +1,40 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-import AuthProvider from "./hooks/AuthProvider";
-import PrivateRoute from "./components/PrivateRoute";
+import { useState } from "react";
+import Login from "./Login";
+import PostForm from "./PostForm";
+import axios from "axios";
+import PostDisplay from "./PostDisplay";
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
+  const [username, setUsername] = useState("");
+  const handleLogin = (token) => {
+    setAccessToken(token);
+    setLoggedIn(true);
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    axios
+      .get("http://127.0.0.1:8000/protected", config)
+      .then((res) => setUsername(res.data.logged_in_as));
+  };
+  const handleLogout = () => {
+    setAccessToken("");
+    setLoggedIn(false);
+  };
+
   return (
-    <div className="App">
-      <Router>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<PrivateRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-            </Route>
-            {/* Other routes */}
-          </Routes>
-        </AuthProvider>
-      </Router>
+    <div>
+      {loggedIn ? (
+        <div>
+          <h1>Welcome {username}</h1>
+          <PostForm accessToken={accessToken} userName={username} />
+          <PostDisplay accessToken={accessToken} />
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      ) : (
+        <Login onLogin={handleLogin} />
+      )}
     </div>
   );
 }
